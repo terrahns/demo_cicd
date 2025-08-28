@@ -1,0 +1,44 @@
+name: Deploy to EC2 on push to main
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo (for linting or future steps; not required for SSH)
+        uses: actions/checkout@v4
+
+      - name: Connect to EC2 and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            # Where we cloned the repo earlier
+            APP_DIR=${{ secrets.APP_DIR }}
+            if [ -z "$APP_DIR" ]; then APP_DIR="/home/${USER}/app"; fi
+
+            # Ensure directory exists
+            mkdir -p "$APP_DIR"
+            cd "$APP_DIR"
+
+            # If first time, clone; otherwise pull
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/<your-username>/<your-repo>.git .
+            else
+              git pull origin main
+            fi
+
+            # Deploy static site to Nginx web root
+            sudo rsync -a --delete "$APP_DIR"/ /var/www/html/
+
+            # Reload Nginx (usually not needed for static, but harmless)
+            sudo systemctl reload nginx
+
+            echo "Deployed at $(date)"
