@@ -30,7 +30,7 @@ jobs:
 
             # If first time, clone; otherwise pull
             if [ ! -d ".git" ]; then
-              git clone https://github.com/<your-username>/<your-repo>.git .
+              git clone https://github.com/<terrahns/<demo_cicd>.git .
             else
               git pull origin main
             fi
