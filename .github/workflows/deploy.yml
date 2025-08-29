@@ -1,4 +1,4 @@
-name: Deploy to EC2 on push to main
+name: Deploy 
 
 on:
   push:
@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo (for linting or future steps; not required for SSH)
+      - name: Checkout repo 
         uses: actions/checkout@v4
 
-      - name: Connect to EC2 and deploy
+      - name: Connect and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
